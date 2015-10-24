@@ -8,21 +8,41 @@ import Console from '../console/components/console';
 import * as playerActionCreators from '../player/actions/index';
 import * as historyActionCreators from '../history/actions/index';
 import * as discoveredActionCreators from '../discovered/actions/index';
+import io from 'socket.io-client';
+
 
 class GameContainer extends Component {
+  constructor(props) {
+	super(props);
+    const {player, log, history, discovered, terrain } = props;
+    this.state = {player, log, history, discovered, terrain };
+  }
+  
+  componentDidMount(){
+	  this.sockettoserver();
+  }
+  
+  sockettoserver(){
+	  var socket = io();
+	  socket.on('server_redux_state', (state) =>{
+		  const {player, log, history, discovered, terrain } = state;
+		  this.setState({player, log, history, discovered, terrain });
+	  });
+  }
+  
+  movePlayer(move){
+    var socket = io();
+    socket.emit('movePlayer',move);
+  }
+  
   render() {
-    const { dispatch, player, log, history, discovered, terrain } = this.props;
-    const playerActions = bindActionCreators(playerActionCreators, dispatch);
-    const historyActions = bindActionCreators(historyActionCreators, dispatch);
-    const discoveredActions = bindActionCreators(discoveredActionCreators, dispatch);
+    const { player, log, history, discovered, terrain } = this.state;
 
     return (
       <div>
         <h1>Snowblind</h1>
         <Viewport
-          move={playerActions.movePlayer}
-          addHistory={historyActions.addHistory}
-          addDiscovered={discoveredActions.addDiscovered}
+          move={this.movePlayer}
           player={player}
           history={history}
           terrain={terrain}
@@ -35,7 +55,6 @@ class GameContainer extends Component {
 }
 
 GameContainer.propTypes = {
-  dispatch: React.PropTypes.func,
   player: React.PropTypes.object,
   log: React.PropTypes.array,
   history: React.PropTypes.array,

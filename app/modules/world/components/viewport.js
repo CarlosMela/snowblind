@@ -21,10 +21,8 @@ class Viewport extends Component {
     if (!keyCode || !direction) {
       return;
     }
-
-    this.props.addHistory(this.props.player.pos);
-    this.props.addDiscovered(this.props.player.pos);
-    this.props.move({direction: direction});
+    
+    this.props.move({direction:{direction},pos:this.props.player.pos});
   }
 
   convertPosToPixels(pos, zoom) {
